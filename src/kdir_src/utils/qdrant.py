@@ -1,6 +1,6 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, SparseVectorParams, SparseVector
-from kdir_src.models.all_models import load_models, get_docs_embeddings
+from kdir_src.models.all_models import load_models, get_docs_embeddings, get_and_save_docs_embeddings
 from kdir_src.dataset.beir import get_sentences_corpus
 from tqdm import tqdm
 import math
@@ -54,6 +54,11 @@ def insert_documents(collection_name, points, batch_size=100):
     for i in tqdm(range(total_batches), desc="Insertando documentos en lotes"):
         batch = points[i * batch_size : (i + 1) * batch_size]
         client.upsert(collection_name=collection_name, points=batch)
+
+def process_corpus_save_embedding(dataset_name, model_name, path, bz_emb= 32):
+    models = load_models()
+    sentences, payloads = get_sentences_corpus(dataset_name)
+    get_and_save_docs_embeddings(dataset_name, models,model_name, path, sentences, bz_emb)
 
 def process_corpus(dataset_name, bz_emb= 32, bz_qdrant = 100):
     models = load_models()

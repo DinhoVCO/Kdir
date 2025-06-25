@@ -75,6 +75,29 @@ class Query2Doc:
                     raise # Vuelve a lanzar la excepción si se agotaron los reintentos
 
 
+
+    def get_results_from_jsonl_q2d(self, path_doc_gen, path='../results/',batch_size=32, top_k=10):
+        os.makedirs(path, exist_ok=True)
+        datos = []
+        with open(path_doc_gen, 'r', encoding='utf-8') as f:
+            for linea in f:
+                datos.append(json.loads(linea.strip()))
+        sentences = []
+        queries_ids = []
+        for doc in datos:
+            sentences.append(doc['query']+" "+doc['generated_documents'][0])
+            queries_ids.append(doc['query_id'])
+
+        all_sentence_embeddings = get_query_embeddings(self.encoder_models, sentences ,128,True)
+        collection_name= f"kdir_{self.dataset_name}"
+        vectors =["contriever","contriever_ft","dpr","bge_large","gte_large","sparse_bm25"]
+        i=0
+        for model_embeddings in all_sentence_embeddings:
+            results = get_inference_results(model_embeddings, queries_ids, collection_name, vectors[i], top_k)
+            with open(path+f"results_{vectors[i]}.json", "w") as f:
+                json.dump(results, f, indent=2)
+            i+=1
+
     def get_and_save_passages(self, path='../doc_gen/query2doc/'):
         os.makedirs(path, exist_ok=True)
         corpus_train, queries_train, qrels_train =get_beir_train_dataset(self.dataset_name)

@@ -48,6 +48,7 @@ def get_sentences_corpus(dataset_name):
     corpus, queries, qrels = get_beir_dataset(dataset_name)
     if(dataset_name=='arguana'):
         return get_sentences_corpus_arguana(corpus)
+    return get_sentences_corpus_arguana(corpus)
 
 def get_sentences_queries(dataset_name):
     corpus, queries, qrels = get_beir_dataset(dataset_name)

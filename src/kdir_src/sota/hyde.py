@@ -23,6 +23,10 @@ Passage: {}
 Counter Argument:"""
 
 
+NFCORPUS = """Please write a medical article passage to answer the question.
+Question: {}
+Passage:"""
+
 TREC_COVID = """Please write a scientific paper passage to answer the question.
 Question: {}
 Passage:"""
@@ -48,6 +52,10 @@ Question: {}
 Passage:"""
 
 
+SCIDOCS = """Please write a scientific document passage on the topic.
+Topic: {}
+Passage:"""
+
 class Promptor:
     def __init__(self, task: str, language: str = 'en'):
         self.task = task
@@ -60,6 +68,8 @@ class Promptor:
             return SCIFACT.format(query)
         elif self.task == 'arguana':
             return ARGUANA.format(query)
+        elif self.task == 'nfcorpus':
+            return NFCORPUS.format(query)
         elif self.task == 'trec-covid':
             return TREC_COVID.format(query)
         elif self.task == 'fiqa':
@@ -70,6 +80,8 @@ class Promptor:
             return TREC_NEWS.format(query)
         elif self.task == 'mr-tydi':
             return MR_TYDI.format(self.language, query)
+        elif self.task == 'scidocs':
+            return SCIDOCS.format(query)
         else:
             raise ValueError('Task not supported')
 
@@ -275,7 +287,7 @@ class HyDE:
         all_querys_embeddings=[contriever,contriever_ft, dpr, bge_large, gte_large, sparse_bm25]
         return all_querys_embeddings, queries_ids
 
-    def get_results_from_jsonl_hyde(self, path_doc_gen='../doc_gen/srchivo.jsonl', path='../results/',batch_size=32, top_k=10):
+    def get_results_from_jsonl_hyde(self, path_doc_gen, path='../results/',batch_size=32, top_k=10):
         os.makedirs(path, exist_ok=True)
         datos = []
         with open(path_doc_gen, 'r', encoding='utf-8') as f:
