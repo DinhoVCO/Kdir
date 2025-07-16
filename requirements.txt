@@ -19,5 +19,6 @@ qdrant-client
 beir
 fastembed
 mistralai
+mistral-common
 
 #pip install -e .
