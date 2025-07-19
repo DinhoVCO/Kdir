@@ -8,6 +8,7 @@ from kdir_src.dataset.beir import get_sentences_queries, build_beir_random_examp
 from tqdm import tqdm
 import os
 import json
+import time
 
 
 def generar_prompt_few_shot(ejemplos, consulta_final):

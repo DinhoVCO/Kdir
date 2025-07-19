@@ -5,6 +5,7 @@ from kdir_src.models.sparce_models import load_bm25, load_splade, get_sparse_emb
 from kdir_src.models.qwen3 import load_qwen3_06B, get_qwen3_embeddings
 from kdir_src.models.gte import load_gte_large, get_gte_embeddings
 import os
+import torch
 
 def load_models():
     print('Loading contriever...')

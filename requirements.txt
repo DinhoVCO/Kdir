@@ -20,5 +20,6 @@ beir
 fastembed
 mistralai
 mistral-common
-
+matplotlib
+seaborn
 #pip install -e .

@@ -8,6 +8,7 @@ import numpy as np
 import torch
 import json
 import os
+import time
 
 class Fire:
     def __init__(self, dataset_name, promptor, generator, encoder_models):
@@ -25,12 +26,12 @@ class Fire:
                 hypothesis_documents = self.generator.generate(prompt) 
                 return hypothesis_documents
             except Exception as e: 
-                print(f"Error generating for query '{query}' (Attempt {attempt + 1}/{max_retries}): {e}")
+                print(f"Error generating for query '{prompt}' (Attempt {attempt + 1}/{max_retries}): {e}")
                 if attempt < max_retries - 1:
                     print(f"Retrying in {retry_delay_seconds} seconds...")
                     time.sleep(retry_delay_seconds)
                 else:
-                    print(f"Max retries reached for query '{query}'. Giving up.")
+                    print(f"Max retries reached for query '{prompt}'. Giving up.")
                     raise
 
     def get_rel_docs_by_model(self, model_embeddings, collection_name, vector_name, top_k=5):
@@ -288,6 +289,22 @@ class Fire:
             with open(path+f"results_{model}.json", "w") as f:
                     json.dump(results_doc, f, indent=2)
 
+
+    def count_bge_tokens_input(self):
+        sentences, queries_ids, all_rel_docs = self.get_all_rel_docs(32, 5)
+        documents_input=[]
+        queries_input=[]
+        anwers_input=[]
+        for i, query in tqdm(enumerate(sentences), desc='Processing queries (generate or skip)'):
+            rel_docs = all_rel_docs[3]
+            prompts = self.promptor.get_prompt(query, rel_docs[i])
+            doc = prompts[0]
+            documents_input.append(doc)
+            input_query = prompts[1]
+            queries_input.append(input_query)
+            answer = prompts[2]
+            anwers_input.append(answer)
+        return {'doc_input':documents_input, 'query_input':queries_input, 'anwers_input':anwers_input}
 
         
 

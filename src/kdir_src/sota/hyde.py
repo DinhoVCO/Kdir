@@ -7,6 +7,7 @@ from kdir_src.utils.inference import get_inference_results
 from tqdm import tqdm
 import os
 import json
+import time
 
 WEB_SEARCH = """Please write a passage to answer the question.
 Question: {}
