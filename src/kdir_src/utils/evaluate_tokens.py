@@ -242,3 +242,18 @@ def get_all_basic_input_tokens():
         results[dataset]=avg
     return results
 
+
+def get_input_prompt_fire_bge(dataset_name, path_save):
+    KEY = 'jTrxtC1mqMP1Lj9aMg8fvexSh2xDgZC4'
+    MODEL_MISTRAL='mistral-small-2503'
+    generator = MistralGenerator(MODEL_MISTRAL, KEY, 1, 512, 0.0)
+    promptor = Promptor_fire(dataset_name)
+    encoder_models = load_models()
+    fire_rag = Fire(dataset_name, promptor, generator, encoder_models)
+    results_bge_fire = fire_rag.count_bge_tokens_input()
+    os.makedirs(path_save, exist_ok=True)
+    with open(path_save+'input_prompt.json', 'w', encoding='utf-8') as f:
+        json.dump(results_bge_fire, f, indent=4, ensure_ascii=False)
+
+    print(f"✅ Resultados guardados exitosamente en: {path_save}")
+    

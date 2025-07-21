@@ -306,6 +306,7 @@ class Fire:
             anwers_input.append(answer)
         return {'doc_input':documents_input, 'query_input':queries_input, 'anwers_input':anwers_input}
 
+
         
 
     
