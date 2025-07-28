@@ -1,4 +1,4 @@
-from kdir_src.dataset.beir import get_sentences_queries
+from kdir_src.dataset.beir import get_sentences_queries, get_sentences_queries_openai
 from kdir_src.models.all_models import get_query_embeddings_by_model, get_query_embeddings
 from kdir_src.utils.qdrant import recuperar_documentos, recuperar_documentos_sparsos
 from kdir_src.utils.inference import get_inference_results
@@ -307,7 +307,42 @@ class Fire:
         return {'doc_input':documents_input, 'query_input':queries_input, 'anwers_input':anwers_input}
 
 
+    def generate_openai_doc_and_save_prf(self, gen_model, path_input, path_to_save='../doc_gen/fire/openai/'):
+        model ="bge_large"
+        sentences, queries_ids = get_sentences_queries_openai(self.dataset_name)
+        with open(path_input, 'r', encoding='utf-8') as archivo:
+            datos = json.load(archivo)
+        os.makedirs(path_to_save+f'{model}/', exist_ok=True)
+        output_filepath = os.path.join(path_to_save+f'{model}/', f"{gen_model}_generated_documents_{self.dataset_name}.jsonl")
+        existing_query_ids = set()
+        if os.path.exists(output_filepath):
+            with open(output_filepath, 'r', encoding='utf-8') as f_read:
+                for line in f_read:
+                    try:
+                        entry = json.loads(line)
+                        if "query_id" in entry:
+                            existing_query_ids.add(entry["query_id"])
+                    except json.JSONDecodeError:
+                        print(f"Warning: Could not decode JSON line in {output_filepath}: {line.strip()}")
+                        continue
         
+        print(f"Found {len(existing_query_ids)} previously generated documents in '{output_filepath}'.")
+
+        with open(output_filepath, 'a', encoding='utf-8') as f_write:
+            for i, prompt in tqdm(enumerate(datos['doc_input']), desc='Processing queries (generate or skip)'):
+                current_query_id = queries_ids[i]
+                if current_query_id in existing_query_ids:
+                    continue
+                #print("=======")
+                #print(prompt)
+                ans1 = self.generate(prompt)
+                entry = {
+                    "query_id": current_query_id,
+                    "generated_document": ans1,
+                }
+                f_write.write(json.dumps(entry, ensure_ascii=False) + '\n')
+        print(f"Document generation complete. Results saved in: {output_filepath}")
+
 
     
 

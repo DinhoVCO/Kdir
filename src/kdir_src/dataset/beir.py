@@ -116,3 +116,14 @@ def build_beir_random_examples(corpus, queries, qrels, num_examples=4, seed=None
                     })
     return examples
 
+def get_local_beir(dataset_name):
+    corpus, queries, qrels = GenericDataLoader(data_folder=f"../datasets/{dataset_name}").load(split="test")
+    return corpus, queries, qrels
+
+def get_sentences_queries_openai(dataset_name):
+    corpus, queries, qrels = get_local_beir(dataset_name)
+    if(dataset_name=='arguana'):
+        return get_sentences_queries_arguana(queries)
+    if(dataset_name=='nfcorpus'):
+        return get_sentences_queries_arguana(queries)
+    return get_sentences_queries_arguana(queries)
