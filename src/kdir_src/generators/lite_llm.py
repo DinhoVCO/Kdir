@@ -3,9 +3,9 @@ import json
 import openai
 import time
 
-SSL_CERT_FILE2 = "C:/Users/FXO0/Documents/arquivos_e_base_de_dados/ambientes/DSV_LOCAL/artifacts/bundle.pem"
-AZURE_OPENAI_API_KEY = "3da50d81507e46349d53cb04752996da"
-AZURE_OPENAI_ENDPOINT = "https://apit.petrobras.com.br/ia/texto/v1/litellm/litellm"
+SSL_CERT_FILE2 = ""
+AZURE_OPENAI_API_KEY = ""
+AZURE_OPENAI_ENDPOINT = ""
 OPENAI_API_VERSION = "2024-12-01-preview" #"2023-08-01-preview"
 os.environ['SSL_CERT_FILE'] = SSL_CERT_FILE2
 client = openai.AzureOpenAI(

@@ -177,7 +177,7 @@ def get_all_input_tokens(path_save):
     #results={'hyde'}
     encoder_models = load_models()
     for dataset_name in datasets:
-        KEY = 'jTrxtC1mqMP1Lj9aMg8fvexSh2xDgZC4'
+        KEY = ''
         MODEL_MISTRAL='mistral-small-2503'
         # HYDE
         promptor_hyde = PromptorHyde(dataset_name)
@@ -244,7 +244,7 @@ def get_all_basic_input_tokens():
 
 
 def get_input_prompt_fire_bge(dataset_name, path_save):
-    KEY = 'jTrxtC1mqMP1Lj9aMg8fvexSh2xDgZC4'
+    KEY = ''
     MODEL_MISTRAL='mistral-small-2503'
     generator = MistralGenerator(MODEL_MISTRAL, KEY, 1, 512, 0.0)
     promptor = Promptor_fire(dataset_name)
