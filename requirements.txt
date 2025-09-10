@@ -1,23 +1,25 @@
 # PyTorch con CUDA 11.8
-torch==2.3.0+cu118
-torchaudio==2.3.0+cu118
-torchvision==0.18.0+cu118
---extra-index-url https://download.pytorch.org/whl/cu118
+#torch==2.3.0+cu118
+#torchaudio==2.3.0+cu118
+#torchvision==0.18.0+cu118
+#--extra-index-url https://download.pytorch.org/whl/cu118
 
 # NLP y Transformers
 accelerate==1.6.0
 transformers==4.51.2
 sentence-transformers==4.0.2
 huggingface-hub==0.30.2
-peft==0.15.2
+#peft==0.15.2
 trl==0.17.0
 bitsandbytes==0.45.5
 
 #KDIR
-pyserini==0.39.0
+#pyserini==0.39.0
 qdrant-client
 beir
 fastembed
 mistralai
-
+mistral-common
+matplotlib
+seaborn
 #pip install -e .

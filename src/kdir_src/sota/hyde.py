@@ -7,6 +7,7 @@ from kdir_src.utils.inference import get_inference_results
 from tqdm import tqdm
 import os
 import json
+import time
 
 WEB_SEARCH = """Please write a passage to answer the question.
 Question: {}
@@ -22,6 +23,10 @@ ARGUANA = """Please write a counter argument for the passage.
 Passage: {}
 Counter Argument:"""
 
+
+NFCORPUS = """Please write a medical article passage to answer the question.
+Question: {}
+Passage:"""
 
 TREC_COVID = """Please write a scientific paper passage to answer the question.
 Question: {}
@@ -48,6 +53,10 @@ Question: {}
 Passage:"""
 
 
+SCIDOCS = """Please write a scientific document passage on the topic.
+Topic: {}
+Passage:"""
+
 class Promptor:
     def __init__(self, task: str, language: str = 'en'):
         self.task = task
@@ -60,6 +69,8 @@ class Promptor:
             return SCIFACT.format(query)
         elif self.task == 'arguana':
             return ARGUANA.format(query)
+        elif self.task == 'nfcorpus':
+            return NFCORPUS.format(query)
         elif self.task == 'trec-covid':
             return TREC_COVID.format(query)
         elif self.task == 'fiqa':
@@ -70,6 +81,8 @@ class Promptor:
             return TREC_NEWS.format(query)
         elif self.task == 'mr-tydi':
             return MR_TYDI.format(self.language, query)
+        elif self.task == 'scidocs':
+            return SCIDOCS.format(query)
         else:
             raise ValueError('Task not supported')
 
@@ -253,6 +266,43 @@ class HyDE:
             sparse_bm25.append(hyde_vector[5])
         all_querys_embeddings=[contriever,contriever_ft, dpr, bge_large, gte_large, sparse_bm25]
         return all_querys_embeddings, queries_ids
+
+    def get_all_querys_embeddings_from_jsonl(self, datos):
+        queries_ids=[]
+        contriever=[]
+        contriever_ft=[]
+        dpr=[]
+        bge_large=[]
+        gte_large=[]
+        sparse_bm25=[]       
+        for doc in tqdm(datos, desc='obteniendo embedding de todos los doc generados'):
+            queries_ids.append(doc['query_id'])
+            hypothesis_documents = doc['generated_documents']
+            hyde_vector = self.encode(doc['query'], hypothesis_documents)
+            contriever.append(hyde_vector[0])
+            contriever_ft.append(hyde_vector[1])
+            dpr.append(hyde_vector[2])
+            bge_large.append(hyde_vector[3])
+            gte_large.append(hyde_vector[4])
+            sparse_bm25.append(hyde_vector[5])
+        all_querys_embeddings=[contriever,contriever_ft, dpr, bge_large, gte_large, sparse_bm25]
+        return all_querys_embeddings, queries_ids
+
+    def get_results_from_jsonl_hyde(self, path_doc_gen, path='../results/',batch_size=32, top_k=10):
+        os.makedirs(path, exist_ok=True)
+        datos = []
+        with open(path_doc_gen, 'r', encoding='utf-8') as f:
+            for linea in f:
+                datos.append(json.loads(linea.strip()))
+        all_sentence_embeddings, queries_ids = self.get_all_querys_embeddings_from_jsonl(datos)
+        collection_name= f"kdir_{self.dataset_name}"
+        vectors =["contriever","contriever_ft","dpr","bge_large","gte_large","sparse_bm25"]
+        i=0
+        for model_embeddings in all_sentence_embeddings:
+            results = get_inference_results(model_embeddings, queries_ids, collection_name, vectors[i], top_k)
+            with open(path+f"results_{vectors[i]}.json", "w") as f:
+                json.dump(results, f, indent=2)
+            i+=1
 
     def get_results_hyde(self, path='../results/',batch_size=32, top_k=10):
         os.makedirs(path, exist_ok=True)

@@ -4,6 +4,8 @@ from kdir_src.models.dpr import load_question_dpr, load_context_dpr, get_dpr_emb
 from kdir_src.models.sparce_models import load_bm25, load_splade, get_sparse_embeddings
 from kdir_src.models.qwen3 import load_qwen3_06B, get_qwen3_embeddings
 from kdir_src.models.gte import load_gte_large, get_gte_embeddings
+import os
+import torch
 
 def load_models():
     print('Loading contriever...')
@@ -59,6 +61,52 @@ def get_docs_embeddings(models, sentences, batch_size=32):
     #embeddings.append(splade_embeddings)
     print("Embeddings finalizado")
     return embeddings
+
+def get_and_save_docs_embeddings(dataset_name, models, model_name,path_save, sentences, batch_size=32):
+    if(model_name=='contriever'):
+        embeddings = get_contriever_embeddings_batched(models['contriever'][0],models['contriever'][1], sentences, batch_size)
+    elif(model_name=='contriever_ft'):
+        embeddings = get_contriever_embeddings_batched(models['contriever_ft'][0],models['contriever_ft'][1], sentences, batch_size)
+    elif(model_name=='context_dpr'):
+        embeddings = get_dpr_embeddings_batched(models['context_dpr'][0],models['context_dpr'][1], sentences, batch_size)
+    elif(model_name=='bge_large'):
+        embeddings = get_bge_large_embeddings(models['bge_large'][0], sentences, batch_size)
+    elif(model_name=='gte_large'):
+        embeddings = get_gte_embeddings(models['gte_large'][0], sentences, batch_size)
+    elif(model_name=='bm25'):
+        embeddings = get_sparse_embeddings(models['bm25'], sentences, 128)
+    print("Embeddings finalizado")
+    os.makedirs(path_save, exist_ok=True) 
+    # --- Fin de la adición ---
+
+    output_file_name = f"{dataset_name}_{model_name}_embeddings.pt"
+    full_output_path = os.path.join(path_save, output_file_name) # Usar os.path.join es más robusto
+
+    torch.save(embeddings, full_output_path)
+    print(f"Embeddings guardados en: {full_output_path}")
+
+
+def get_query_embeddings_by_model(models, model, sentences, batch_size=32, show_progress_bar=True):
+    if(model=='contriever'):
+        contriever_embeddings = get_contriever_embeddings_batched(models['contriever'][0],models['contriever'][1], sentences, batch_size, show_progress_bar)
+        return contriever_embeddings
+    elif(model=='contriever_ft'): 
+        contriever_ft_embeddings = get_contriever_embeddings_batched(models['contriever_ft'][0],models['contriever_ft'][1], sentences, batch_size, show_progress_bar)
+        return contriever_ft_embeddings
+    elif(model=='dpr'): 
+        dpr_embeddings = get_dpr_embeddings_batched(models['question_dpr'][0],models['question_dpr'][1], sentences, batch_size, show_progress_bar)
+        return dpr_embeddings
+    elif(model=='bge_large'): 
+        bge_embeddings = get_bge_large_embeddings(models['bge_large'][0], sentences, batch_size, show_progress_bar)
+        return bge_embeddings
+    elif(model=='gte_large'): 
+        gte_large_embeddings = get_gte_embeddings(models['gte_large'][0], sentences, batch_size, show_progress_bar)
+        return gte_large_embeddings
+    elif(model=='sparse_bm25'): 
+        if(show_progress_bar):
+            print("Procesando BM25 embeddings")
+        bm25_embeddings = get_sparse_embeddings(models['bm25'], sentences, 128)
+        return bm25_embeddings
 
 
 def get_query_embeddings(models, sentences, batch_size=32, show_progress_bar=True):
